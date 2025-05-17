@@ -1,85 +1,68 @@
 // Solution for Total Characters in String After Transformations II in CPP
 
-static constexpr int L = 26;
-static constexpr int mod = 1000000007;
+class Solution {
+public:
 
-struct Mat {
-    Mat() { memset(a, 0, sizeof(a)); }
-    Mat(const Mat& that) {
-        for (int i = 0; i < L; ++i) {
-            for (int j = 0; j < L; ++j) {
-                a[i][j] = that.a[i][j];
-            }
-        }
-    }
-    Mat& operator=(const Mat& that) {
-        if (this != &that) {
-            for (int i = 0; i < L; ++i) {
-                for (int j = 0; j < L; ++j) {
-                    a[i][j] = that.a[i][j];
+    using Matrix = vector<vector<int>>;
+    const int MOD = 1000000007;
+
+    Matrix matrixMultiplication(Matrix& A, Matrix& B) {
+        Matrix C(26, vector<int>(26, 0));
+        for (int i = 0; i < 26; i++) {
+            for (int j = 0; j < 26; j++) {
+                for (int k = 0; k < 26; k++) {
+                    C[i][j] = (C[i][j] + (1LL * A[i][k] * B[k][j]) % MOD) % MOD;
                 }
             }
         }
-        return *this;
+        return C;
     }
 
-    int a[L][L];
-};
-
-Mat operator*(const Mat& u, const Mat& v) {
-    Mat w;
-    for (int i = 0; i < L; ++i) {
-        for (int j = 0; j < L; ++j) {
-            for (int k = 0; k < L; ++k) {
-                w.a[i][j] =
-                    (w.a[i][j] + (long long)u.a[i][k] * v.a[k][j]) % mod;
+    Matrix matrixExponentiation(Matrix& base, int exponent) {
+        if (exponent == 0) {
+            Matrix I(26, vector<int>(26, 0));
+            for (int i = 0; i < 26; i++) {
+                I[i][i] = 1;
             }
+            return I;
         }
-    }
-    return w;
-}
-
-// identity matrix
-Mat I() {
-    Mat w;
-    for (int i = 0; i < L; ++i) {
-        w.a[i][i] = 1;
-    }
-    return w;
-}
-
-// matrix exponentiation by squaring
-Mat quickmul(const Mat& x, int y) {
-    Mat ans = I(), cur = x;
-    while (y) {
-        if (y & 1) {
-            ans = ans * cur;
+        Matrix half = matrixExponentiation(base, exponent / 2);
+        Matrix result = matrixMultiplication(half, half);
+        if (exponent % 2 == 1) {
+            result = matrixMultiplication(result, base);
         }
-        cur = cur * cur;
-        y >>= 1;
+        return result;
     }
-    return ans;
-}
 
-class Solution {
-public:
     int lengthAfterTransformations(string s, int t, vector<int>& nums) {
-        Mat T;
-        for (int i = 0; i < 26; ++i) {
-            for (int j = 1; j <= nums[i]; ++j) {
-                T.a[(i + j) % 26][i] = 1;
+        // Final freq state = T^t * initial freq state
+        // initial freq
+        vector<int> freq(26, 0);
+        for (const auto& ch: s) {
+            freq[ch - 'a']++;
+        }
+
+        // forming T matrix
+        Matrix T(26, vector<int>(26, 0));
+        for (int i = 0; i < 26; i++) {
+            for (int add = 1; add <= nums[i]; add++) {
+                T[(i + add) % 26][i]++;
             }
         }
-        Mat res = quickmul(T, t);
+
+        // find T^t
+        Matrix result = matrixExponentiation(T, t);
+        
+        vector<int> finalFreq(26, 0);
+        for (int i = 0; i < 26; i++) {
+            for (int j = 0; j < 26; j++) {
+                finalFreq[i] = (finalFreq[i] + (1LL * result[i][j] * freq[j]) % MOD) % MOD;
+            }
+        }
+
         int ans = 0;
-        vector<int> f(26);
-        for (char ch : s) {
-            ++f[ch - 'a'];
-        }
-        for (int i = 0; i < 26; ++i) {
-            for (int j = 0; j < 26; ++j) {
-                ans = (ans + (long long)res.a[i][j] * f[j]) % mod;
-            }
+        for (int i = 0; i < 26; i++) {
+            ans = (ans + finalFreq[i]) % MOD;
         }
         return ans;
     }
