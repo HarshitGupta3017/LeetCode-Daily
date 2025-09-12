@@ -1,1 +1,10 @@
 // Solution for Vowels Game in a String in CPP
+
+class Solution {
+public:
+    bool doesAliceWin(string s) {
+        return any_of(begin(s), end(s), [](char ch){
+            return string("aeiou").find(ch) != string::npos;
+        });
+    }
+};
