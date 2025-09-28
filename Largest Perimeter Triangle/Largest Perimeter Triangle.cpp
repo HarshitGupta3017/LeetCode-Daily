@@ -1,1 +1,17 @@
 // Solution for Largest Perimeter Triangle in CPP
+
+class Solution {
+public:
+    int largestPerimeter(vector<int>& nums) {
+        sort(begin(nums), end(nums));
+        for (int i = nums.size() - 1; i >= 2; i--) {
+            int a = nums[i - 2];
+            int b = nums[i - 1];
+            int c = nums[i];
+            if (a + b > c) {
+                return a + b + c;
+            }
+        }
+        return 0;
+    }
+};
