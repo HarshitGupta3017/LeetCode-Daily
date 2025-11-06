@@ -1,59 +1,56 @@
 # Solution for Power Grid Maintenance in PY
 
 class Solution:
-    def processQueries(self, totalStations: int, connections: List[List[int]], queries: List[List[int]]) -> List[int]:
+    def processQueries(self, totalStations, connections, queries):
         parent = list(range(totalStations + 1))
         rank = [0] * (totalStations + 1)
 
-        # 🔹 Find with path compression
         def find(x):
             if parent[x] != x:
                 parent[x] = find(parent[x])
             return parent[x]
 
-        # 🔹 Union by rank
         def union(a, b):
-            rootA, rootB = find(a), find(b)
-            if rootA == rootB:
+            ra, rb = find(a), find(b)
+            if ra == rb:
                 return
-            if rank[rootA] < rank[rootB]:
-                parent[rootA] = rootB
-            elif rank[rootA] > rank[rootB]:
-                parent[rootB] = rootA
+            if rank[ra] < rank[rb]:
+                parent[ra] = rb
+            elif rank[ra] > rank[rb]:
+                parent[rb] = ra
             else:
-                parent[rootB] = rootA
-                rank[rootA] += 1
+                parent[rb] = ra
+                rank[ra] += 1
 
         # Build components
         for u, v in connections:
             union(u, v)
 
-        # Sets for each component
-        component_stations = defaultdict(set)
+        # Build heaps for each component
+        component_heap = defaultdict(list)
         for station in range(1, totalStations + 1):
-            root = find(station)
-            component_stations[root].add(station)
+            heapq.heappush(component_heap[find(station)], station)
 
-        # Track online/offline
         is_online = [True] * (totalStations + 1)
         res = []
 
         # Process queries
         for t, station in queries:
             root = find(station)
+
             if t == 1:
                 # 🟢 Maintenance check
                 if is_online[station]:
                     res.append(station)
                 else:
-                    if component_stations[root]:
-                        res.append(min(component_stations[root]))
-                    else:
-                        res.append(-1)
+                    # Pop offline stations from heap top (lazy removal)
+                    while component_heap[root] and not is_online[component_heap[root][0]]:
+                        heapq.heappop(component_heap[root])
+                    res.append(component_heap[root][0] if component_heap[root] else -1)
+
             elif t == 2:
                 # 🔴 Take offline
                 if is_online[station]:
                     is_online[station] = False
-                    component_stations[root].discard(station)
 
         return res
