@@ -1,0 +1,1 @@
+# Solution for Minimum Number of Operations to Make All Array Elements Equal to 1 in PY
