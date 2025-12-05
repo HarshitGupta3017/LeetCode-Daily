@@ -1,1 +1,5 @@
 # Solution for Count Partitions with Even Sum Difference in PY
+
+class Solution:
+    def countPartitions(self, nums: List[int]) -> int:
+        return len(nums) - 1 if sum(nums) % 2 == 0 else 0
