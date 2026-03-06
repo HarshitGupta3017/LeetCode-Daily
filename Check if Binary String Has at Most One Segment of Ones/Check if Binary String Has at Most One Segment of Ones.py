@@ -1,0 +1,1 @@
+# Solution for Check if Binary String Has at Most One Segment of Ones in PY
