@@ -1,1 +1,11 @@
 # Solution for Check if Strings Can be Made Equal With Operations I in PY
+
+class Solution:
+    def canBeEqual(self, s1: str, s2: str) -> bool:
+        condition1 = ((s1[0] == s2[0] and s1[2] == s2[2]) or
+                      (s1[0] == s2[2] and s1[2] == s2[0]))
+
+        condition2 = ((s1[1] == s2[1] and s1[3] == s2[3]) or
+                      (s1[1] == s2[3] and s1[3] == s2[1]))
+
+        return condition1 and condition2
