@@ -3,22 +3,41 @@
 class Solution {
 public:
     int minOperations(vector<vector<int>>& grid, int x) {
-        vector<int> nums;
-        for (const auto& row: grid) {
-            for (const auto& col: row) {
-                nums.push_back(col);
+        
+        vector<int> flattenedValues;
+
+        // Step 1: Flatten the 2D grid into a 1D array
+        for (const auto& row : grid) {
+            for (int value : row) {
+                flattenedValues.push_back(value);
             }
         }
-        int remainder = nums[0] % x;
-        for (const auto& num: nums) {
-            if (num % x != remainder) return -1;
+
+        // Step 2: Sort values to easily pick median
+        sort(flattenedValues.begin(), flattenedValues.end());
+
+        int totalElements = flattenedValues.size();
+
+        // Step 3: Check modular consistency (all values must have same remainder mod x)
+        int requiredRemainder = flattenedValues[0] % x;
+
+        // Median minimizes total absolute difference
+        int targetValue = flattenedValues[totalElements / 2];
+
+        int totalOperations = 0;
+
+        // Step 4: Calculate total operations
+        for (int value : flattenedValues) {
+
+            // If remainder differs → impossible to equalize
+            if (value % x != requiredRemainder) {
+                return -1;
+            }
+
+            // Number of operations needed to convert value → targetValue
+            totalOperations += abs(value - targetValue) / x;
         }
-        sort(nums.begin(), nums.end());
-        int ops = 0;
-        int median = nums[nums.size() / 2];
-        for (const auto& num: nums) {
-            ops += abs(num - median) / x;
-        }
-        return ops;
+
+        return totalOperations;
     }
 };
