@@ -1,21 +1,32 @@
 # Solution for Minimum Operations to Make a Uni-Value Grid in PY
 
 class Solution:
-    def minOperations(self, grid: List[List[int]], x: int) -> int:
-        nums = []
-        for row in grid:
-            for col in row:
-                nums.append(col)
-        
-        remainder = nums[0] % x
-        for num in nums:
-            if num % x != remainder:
+    def minOperations(self, grid: list[list[int]], x: int) -> int:
+
+        # Step 1: Flatten the 2D grid into a 1D list
+        flattened_values = [value for row in grid for value in row]
+
+        # Step 2: Sort values to easily pick median
+        flattened_values.sort()
+
+        total_elements = len(flattened_values)
+
+        # Step 3: Check modular consistency
+        required_remainder = flattened_values[0] % x
+
+        # Median minimizes total absolute difference
+        target_value = flattened_values[total_elements // 2]
+
+        total_operations = 0
+
+        # Step 4: Calculate total operations
+        for value in flattened_values:
+
+            # If remainder differs → impossible to equalize
+            if value % x != required_remainder:
                 return -1
-        
-        nums.sort()
-        ops = 0
-        median = nums[len(nums) // 2]
-        for num in nums:
-            ops += abs(num - median) // x
-    
-        return ops
+
+            # Number of operations needed to convert value → targetValue
+            total_operations += abs(value - target_value) // x
+
+        return total_operations
