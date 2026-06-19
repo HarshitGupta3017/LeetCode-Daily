@@ -1,1 +1,5 @@
 # Solution for Find the Highest Altitude in PY
+
+class Solution:
+    def largestAltitude(self, gain: List[int]) -> int:
+        return max(0, *accumulate(gain))
