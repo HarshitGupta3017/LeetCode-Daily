@@ -1,1 +1,25 @@
 // Solution for Length of Longest Subarray With at Most K Frequency in JAVA
+
+class Solution {
+    public int maxSubarrayLength(int[] nums, int k) {
+        int n = nums.length;
+        int left = 0, right = 0;
+        int maxLen = 0;
+
+        HashMap<Integer, Integer> freq = new HashMap<>();
+
+        while (right < n) {
+            freq.put(nums[right], freq.getOrDefault(nums[right], 0) + 1);
+
+            while (freq.get(nums[right]) > k) {
+                freq.put(nums[left], freq.get(nums[left]) - 1);
+                left++;
+            }
+
+            maxLen = Math.max(maxLen, right - left + 1);
+            right++;
+        }
+
+        return maxLen;
+    }
+}
